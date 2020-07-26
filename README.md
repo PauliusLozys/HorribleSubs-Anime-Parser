@@ -1,5 +1,5 @@
 # HorribleSubs-Anime-Parser
-Download 1080p anime from HorribleSubs from a command line with qBitTorrent
+Download latest 50 1080p anime from HorribleSubs from a command line with qBitTorrent
 ## Download straight from the command line
 From the given list of anime, you  can type a number corresponding to an anime and a torrent client will be opened to start downloading 
 ### **NOTE:** Right now you need to specify the path to the your torrent client if you dont have qBittorrent installed, because path to the torrent client is hardcoded as C:\Program Files\qBittorrent\qbittorrent.exe
