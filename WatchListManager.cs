@@ -195,6 +195,7 @@ namespace HorribleSubsXML_Parser
             }
         }
         public string GetWatchListItemLink(int index) => WatchList[index].LatestEpisodeLink;
+        public void SortWatchList() => WatchList.Sort();
 
         private int GetAnimesEpisodeNumber(string AnimeName)
         {

@@ -164,6 +164,8 @@ namespace HorribleSubsXML_Parser
                     IsReleasedToday = tmpDate.Date == DateTime.Now.Date
                 });
             }
+            // Sort the list with possibly updated DateTime values
+            manager.SortWatchList();
         }  
         private static string ExtractString(ref string str, string startingBracket, string endingBracket)
         {
