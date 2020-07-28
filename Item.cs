@@ -24,6 +24,13 @@ namespace HorribleSubsXML_Parser
 
         public int CompareTo(WatchListItem other)
         {
+            // Handle animes with no episodes in the downloaded list
+            if (string.IsNullOrEmpty(other.LatestEpisodeLink))
+                return -1;
+            else if (string.IsNullOrEmpty(LatestEpisodeLink))
+                return 1;
+            
+            // Handle found animes
             if (ReleaseDay.ToShortDateString() == other.ReleaseDay.ToShortDateString())
                 return ReleaseDay.TimeOfDay.CompareTo(other.ReleaseDay.TimeOfDay);
             return ReleaseDay.Date.CompareTo(other.ReleaseDay.Date);
