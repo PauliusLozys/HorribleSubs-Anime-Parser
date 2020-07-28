@@ -61,6 +61,11 @@ namespace HorribleSubsXML_Parser
                         {
                             if (index < watchlist.WatchListCount)
                             {
+                                if (string.IsNullOrEmpty(watchlist.GetWatchListItemLink(index)))
+                                {
+                                    DisplayError("ERROR: This anime has no link");
+                                    continue;
+                                }
                                 Process.Start(@"C:\Program Files\qBittorrent\qbittorrent.exe", watchlist.GetWatchListItemLink(index));
                                 watchlist.SetAnimeAsDownloadedByWatchListIndex(index);
                             }

@@ -64,10 +64,21 @@ namespace HorribleSubsXML_Parser
 
             for (int i = 0; i < WatchList.Count; i++)
             {
-                if(!WatchList[i].IsDownloaded)
+                if (string.IsNullOrEmpty(WatchList[i].LatestEpisodeLink))
+                {
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.WriteLine("{0,2}| {1,-80}| Latest Episode: {2,-3}| No episodes found", 
+                        i, 
+                        WatchList[i].Title, 
+                        WatchList[i].LatestEpisode
+                        );
+                    Console.ForegroundColor = ConsoleColor.Cyan;
+
+                }
+                else if(!WatchList[i].IsDownloaded)
                 {
                     Console.ForegroundColor = ConsoleColor.DarkYellow;
-                    Console.WriteLine("{0,2}| {1,-80} Latest Episode: {2,-3}| Next episode release date: {3} {4}:{5}",
+                    Console.WriteLine("{0,2}| {1,-80}| Latest Episode: {2,-3}| Next episode release date: {3} {4}:{5}",
                         i,
                         WatchList[i].Title,
                         WatchList[i].LatestEpisode,
@@ -78,7 +89,7 @@ namespace HorribleSubsXML_Parser
                     Console.ForegroundColor = ConsoleColor.Cyan;
                 }
                 else
-                    Console.WriteLine("{0,2}| {1,-80} Latest Episode: {2,-3}| Next episode release date: {3} {4}:{5}",
+                    Console.WriteLine("{0,2}| {1,-80}| Latest Episode: {2,-3}| Next episode release date: {3} {4}:{5}",
                         i,
                         WatchList[i].Title,
                         WatchList[i].LatestEpisode,
