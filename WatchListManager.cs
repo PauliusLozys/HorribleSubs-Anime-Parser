@@ -67,7 +67,7 @@ namespace HorribleSubsXML_Parser
                 if (string.IsNullOrEmpty(WatchList[i].LatestEpisodeLink))
                 {
                     Console.ForegroundColor = ConsoleColor.White;
-                    Console.WriteLine("{0,2}| {1,-80}| Latest Episode: {2,-3}| No episodes found", 
+                    Console.WriteLine("{0,2}| {1,-80}| Last episode: {2,-3}| No episodes found", 
                         i, 
                         WatchList[i].Title, 
                         WatchList[i].LatestEpisode
