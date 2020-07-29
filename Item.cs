@@ -4,7 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace HorribleSubsXML_Parser
 {
-    class Item
+    class Anime
     {
         public string Title { get; set; }
         public string Link { get; set; }

@@ -11,13 +11,17 @@ namespace HorribleSubsXML_Parser
         {
             Console.SetWindowSize(160, 60);
 
+            const string torrentClientPath = @"C:\Program Files\qBittorrent\qbittorrent.exe";
+            const string horribleSubs1080pLink = "http://www.horriblesubs.info/rss.php?res=1080";
             string choice;
-            WebClient client = new WebClient();
-            WatchListManager watchlist = new WatchListManager();
-            List<Item> animeList = new List<Item>();
 
-            var downloadedXml = client.DownloadString("http://www.horriblesubs.info/rss.php?res=1080");
-            ParseItemsXml(ref downloadedXml, animeList, watchlist);
+            WebClient client = new WebClient();
+            WatchListManager watchList = new WatchListManager();
+            List<Anime> animeList = new List<Anime>();
+
+            var downloadedXml = client.DownloadString(horribleSubs1080pLink);
+            ParseItemsXml(ref downloadedXml, animeList, watchList);
+
             while (true)
             {
                 Console.Clear();
@@ -28,12 +32,13 @@ namespace HorribleSubsXML_Parser
                 Console.WriteLine("Choices: [ Any other key - quit ] [ 0-... - anime to be downloaded ] [ w - add to watch list (eg. 0 11 43 ...)] [ dw - display watchlist ]");
                 Console.Write("Pick a choice: ");
                 choice = Console.ReadLine();
+
                 if (int.TryParse(choice, out int result)) // Download anime
                 {
                     if (result < animeList.Count)
                     {
-                        Process.Start(@"C:\Program Files\qBittorrent\qbittorrent.exe", animeList[result].Link);
-                        watchlist.SetAnimeAsDownloadedByName(animeList[result]);
+                        Process.Start(torrentClientPath, animeList[result].Link);
+                        watchList.SetAnimeAsDownloadedByAnime(animeList[result]);
                     }
                     else
                         DisplayError($"ERROR: THE NUMBER PROVIDED IS TOO LARGE");
@@ -45,13 +50,13 @@ namespace HorribleSubsXML_Parser
                     if (choice == string.Empty)
                         continue;
                     var values = choice.Split(null);
-                    watchlist.AddToWatchList(values, animeList);
+                    watchList.AddToWatchList(values, animeList);
                 }
                 else if (choice == "dw") // Display watch list
                 {
                     while (true)
                     {
-                        watchlist.DisplayWatchList();
+                        watchList.DisplayWatchList();
 
                         Console.WriteLine("Choices: [ q - go back to main window ] [ 0-... - download anime ] [ r - remove from watchlist (eg. 0-...)] [ mr - multiple removal (eg. 1 5 10 30 ...) ]");
                         Console.Write("Pick a choice: ");
@@ -59,22 +64,22 @@ namespace HorribleSubsXML_Parser
                         int index;
                         if(int.TryParse(choice, out index))
                         {
-                            if (index < watchlist.WatchListCount)
+                            if (index < watchList.WatchListCount)
                             {
-                                if (string.IsNullOrEmpty(watchlist.GetWatchListItemLink(index)))
+                                if (string.IsNullOrEmpty(watchList.GetWatchListItemLink(index)))
                                 {
                                     DisplayError("ERROR: This anime has no link");
                                     continue;
                                 }
-                                Process.Start(@"C:\Program Files\qBittorrent\qbittorrent.exe", watchlist.GetWatchListItemLink(index));
-                                watchlist.SetAnimeAsDownloadedByWatchListIndex(index);
+                                Process.Start(torrentClientPath, watchList.GetWatchListItemLink(index));
+                                watchList.SetAnimeAsDownloadedByWatchListIndex(index);
                             }
                             else
                                 DisplayError($"ERROR: THE NUMBER PROVIDED IS TOO LARGE");
                         }
                         else if (choice == "r")
                         {
-                            if (watchlist.WatchListCount == 0)
+                            if (watchList.WatchListCount == 0)
                             {
                                 DisplayError($"ERROR: THERE ARE NO ENTRIES IN THE WATCHLIST");
                                 continue;
@@ -85,13 +90,13 @@ namespace HorribleSubsXML_Parser
                             if (string.IsNullOrEmpty(choice))
                                 continue;
                             else if (int.TryParse(choice, out index))
-                                watchlist.RemoveEntryFromWatchList(index, animeList);
+                                watchList.RemoveEntryFromWatchList(index, animeList);
                             else
                                 DisplayError($"ERROR: NO VALID PARAMATER GIVEN");
                         }
                         else if (choice == "mr")
                         {
-                            if (watchlist.WatchListCount == 0)
+                            if (watchList.WatchListCount == 0)
                             {
                                 DisplayError($"ERROR: THERE ARE NO ENTRIES IN THE WATCHLIST");
                                 continue;
@@ -102,7 +107,7 @@ namespace HorribleSubsXML_Parser
                             if (string.IsNullOrEmpty(choice))
                                 continue;
                             var values = choice.Split(null);
-                            watchlist.RemoveMultipleEntriesFromWatchList(values, animeList);
+                            watchList.RemoveMultipleEntriesFromWatchList(values, animeList);
                         }
                         else if (choice == "q")
                             break;
@@ -111,7 +116,7 @@ namespace HorribleSubsXML_Parser
                 else
                 {
                     // Quit console
-                    watchlist.WriteWatchListFile();
+                    watchList.WriteWatchListFile();
                     break;
                 }
             }
@@ -125,31 +130,31 @@ namespace HorribleSubsXML_Parser
             Console.WriteLine("Press any key to continue...");
             Console.ReadKey(true);
         }
-        private static void DisplayAnimeList(List<Item> itemList)
+        private static void DisplayAnimeList(List<Anime> animeList)
         {
             Console.WriteLine("CURRENT ANIME LIST:");
             Console.ForegroundColor = ConsoleColor.Green;
 
-            for (int i = 0; i < itemList.Count; i++)
+            for (int i = 0; i < animeList.Count; i++)
             {
-                if (itemList[i].IsInWatchList)
+                if (animeList[i].IsInWatchList)
                 {
                     Console.ForegroundColor = ConsoleColor.Cyan;
-                    Console.WriteLine("{0,2}| {1,-90} {2}", i, itemList[i].Title, itemList[i].PubDate.ToShortDateString());
+                    Console.WriteLine("{0,2}| {1,-90} {2}", i, animeList[i].Title, animeList[i].PubDate.ToShortDateString());
                     Console.ForegroundColor = ConsoleColor.Green;
                 }
-                else if (itemList[i].IsReleasedToday)
+                else if (animeList[i].IsReleasedToday)
                 {
                     Console.ForegroundColor = ConsoleColor.Magenta;
-                    Console.WriteLine("{0,2}| {1,-90} {2}", i, itemList[i].Title, itemList[i].PubDate.ToShortDateString());
+                    Console.WriteLine("{0,2}| {1,-90} {2}", i, animeList[i].Title, animeList[i].PubDate.ToShortDateString());
                     Console.ForegroundColor = ConsoleColor.Green;
                 }
                 else
-                    Console.WriteLine("{0,2}| {1,-90} {2}", i, itemList[i].Title, itemList[i].PubDate.ToShortDateString());
+                    Console.WriteLine("{0,2}| {1,-90} {2}", i, animeList[i].Title, animeList[i].PubDate.ToShortDateString());
             }
             Console.ResetColor();
         }
-        private static void ParseItemsXml(ref string downloadedXml, List<Item> itemList, WatchListManager manager)
+        private static void ParseItemsXml(ref string downloadedXml, List<Anime> animeList, WatchListManager watchList)
         {
             var tokens = downloadedXml.Split(new string[] { "<item>", "</channel>" }, StringSplitOptions.None);
             for (int i = 0; i < tokens.Length; i++)
@@ -160,28 +165,28 @@ namespace HorribleSubsXML_Parser
                 var tmpTitle = ExtractString(ref tokens[i], "<title>", "</title>");
                 var tmpDate = DateTime.Parse(ExtractString(ref tokens[i], "<pubDate>", "</pubDate>"));
                 var tmpLink = ExtractString(ref tokens[i], "<link>", "</link>");
-                itemList.Add(new Item()
+                animeList.Add(new Anime()
                 {
                     Title = tmpTitle,
                     Link = tmpLink,
                     PubDate = tmpDate,
-                    IsInWatchList = manager.ContainsInWatchList(new Item { Title = tmpTitle, Link = tmpLink, PubDate = tmpDate }),
+                    IsInWatchList = watchList.ContainsInWatchList(new Anime { Title = tmpTitle, Link = tmpLink, PubDate = tmpDate }),
                     IsReleasedToday = tmpDate.Date == DateTime.Now.Date
                 });
             }
             // Sort the list with possibly updated DateTime values
-            manager.SortWatchList();
+            watchList.SortWatchList();
         }  
-        private static string ExtractString(ref string str, string startingBracket, string endingBracket)
+        private static string ExtractString(ref string str, string startingTag, string endingTag)
         {
             StringBuilder builder = new StringBuilder();
 
             for (int i = 0; i < str.Length; i++)
             {
                 bool foundStart = true;
-                for (int j = 0; j < startingBracket.Length; j++)
+                for (int j = 0; j < startingTag.Length; j++)
                 {
-                    if (str[i + j] != startingBracket[j])
+                    if (str[i + j] != startingTag[j])
                     {
                         foundStart = false;
                         break;
@@ -190,13 +195,13 @@ namespace HorribleSubsXML_Parser
 
                 if (foundStart)
                 {
-                    for (int l = i + startingBracket.Length; l < str.Length; l++)
+                    for (int l = i + startingTag.Length; l < str.Length; l++)
                     {
                         bool foundEnd = true;
 
-                        for (int j = 0; j < endingBracket.Length; j++)
+                        for (int j = 0; j < endingTag.Length; j++)
                         {
-                            if (str[l + j] != endingBracket[j])
+                            if (str[l + j] != endingTag[j])
                             {
                                 foundEnd = false;
                                 break;

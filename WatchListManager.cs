@@ -7,8 +7,8 @@ namespace HorribleSubsXML_Parser
     class WatchListManager
     {
         private List<WatchListItem> WatchList { get; set; }
-        private readonly string fileName = "animeListing.txt";
-        private readonly string seperator = new string('-', Console.WindowWidth - 1);
+        private readonly string FileName = "animeListing.txt";
+        private readonly string Seperator = new string('-', Console.WindowWidth - 1);
 
         public int WatchListCount { get { return WatchList.Count; } }
 
@@ -19,7 +19,7 @@ namespace HorribleSubsXML_Parser
             ReadWatchListFile();
         }
 
-        public void AddToWatchList(string[] animes, List<Item> animeList)
+        public void AddToWatchList(string[] animes, List<Anime> animeList)
         {
             foreach (var item in animes)
             {
@@ -60,7 +60,7 @@ namespace HorribleSubsXML_Parser
 
                 return;
             }
-            Console.WriteLine(seperator);
+            Console.WriteLine(Seperator);
 
             for (int i = 0; i < WatchList.Count; i++)
             {
@@ -97,11 +97,11 @@ namespace HorribleSubsXML_Parser
                         WatchList[i].ReleaseDay.Hour,
                         WatchList[i].ReleaseDay.Minute < 30 ? "00" : "30"
                         );
-                Console.WriteLine(seperator);
+                Console.WriteLine(Seperator);
             }
             Console.ResetColor();
         }
-        public bool ContainsInWatchList(Item anime)
+        public bool ContainsInWatchList(Anime anime)
         {
             foreach (var item in WatchList)
             {
@@ -130,30 +130,13 @@ namespace HorribleSubsXML_Parser
             if (WatchList.Count == 0)
                 return;
 
-            using var fs = new StreamWriter(fileName,false);
+            using var fs = new StreamWriter(FileName,false);
             foreach (var item in WatchList)
             {
                 fs.WriteLine($"{item.Title};{item.LatestEpisode};{item.IsDownloaded};{item.ReleaseDay}");
             }
         }
-        public void SetAnimeAsDownloadedByName(Item anime)
-        {
-            foreach (var item in WatchList)
-            {
-                if (anime.Title.Contains(item.Title))
-                {
-                    int episodeNumber = GetAnimesEpisodeNumber(anime.Title);
-                    if(episodeNumber == item.LatestEpisode)
-                    {
-                        item.IsDownloaded = true;
-                        item.ReleaseDay = anime.PubDate;
-                        return;
-                    }
-                }
-            }
-        }
-        public void SetAnimeAsDownloadedByWatchListIndex(int index) => WatchList[index].IsDownloaded = true;
-        public void RemoveEntryFromWatchList(int index, List<Item> animeList)
+        public void RemoveEntryFromWatchList(int index, List<Anime> animeList)
         {
             if(index >= WatchList.Count)
             {
@@ -169,7 +152,7 @@ namespace HorribleSubsXML_Parser
                 anime.IsInWatchList = ContainsInWatchList(anime);
             }
         }
-        public void RemoveMultipleEntriesFromWatchList(string[] indexes, List<Item> animeList)
+        public void RemoveMultipleEntriesFromWatchList(string[] indexes, List<Anime> animeList)
         {
             List<WatchListItem> tmp = new List<WatchListItem>(indexes.Length);
 
@@ -205,6 +188,23 @@ namespace HorribleSubsXML_Parser
                 anime.IsInWatchList = ContainsInWatchList(anime);
             }
         }
+        public void SetAnimeAsDownloadedByAnime(Anime anime)
+        {
+            foreach (var item in WatchList)
+            {
+                if (anime.Title.Contains(item.Title))
+                {
+                    int episodeNumber = GetAnimesEpisodeNumber(anime.Title);
+                    if(episodeNumber == item.LatestEpisode)
+                    {
+                        item.IsDownloaded = true;
+                        item.ReleaseDay = anime.PubDate;
+                        return;
+                    }
+                }
+            }
+        }
+        public void SetAnimeAsDownloadedByWatchListIndex(int index) => WatchList[index].IsDownloaded = true;
         public string GetWatchListItemLink(int index) => WatchList[index].LatestEpisodeLink;
         public void SortWatchList() => WatchList.Sort();
 
@@ -225,10 +225,10 @@ namespace HorribleSubsXML_Parser
         }
         private void ReadWatchListFile()
         {
-            if (!File.Exists(fileName))
+            if (!File.Exists(FileName))
                 return;
 
-            using var fs = new StreamReader(fileName);
+            using var fs = new StreamReader(FileName);
             while (!fs.EndOfStream)
             {
                 //Format title;latest episode;is downloaded
