@@ -18,7 +18,7 @@ namespace HorribleSubsXML_Parser
             WebClient client = new WebClient();
             WatchListManager watchList = new WatchListManager();
             List<Anime> animeList = new List<Anime>();
-
+            
             var downloadedXml = client.DownloadString(horribleSubs1080pLink);
             ParseItemsXml(ref downloadedXml, animeList, watchList);
 
@@ -27,7 +27,6 @@ namespace HorribleSubsXML_Parser
                 Console.Clear();
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.ResetColor();
-            
                 DisplayAnimeList(animeList);
                 Console.WriteLine("Choices: [ Any other key - quit ] [ 0-... - anime to be downloaded ] [ w - add to watch list (eg. 0 11 43 ...)] [ dw - display watchlist ]");
                 Console.Write("Pick a choice: ");
@@ -180,13 +179,16 @@ namespace HorribleSubsXML_Parser
         private static string ExtractString(ref string str, string startingTag, string endingTag)
         {
             StringBuilder builder = new StringBuilder();
+            var _str = str.ToCharArray();
+            var _startingTag = startingTag.ToCharArray();
+            var _endingTag = endingTag.ToCharArray();
 
-            for (int i = 0; i < str.Length; i++)
+            for (int i = 0; i < _str.Length; i++)
             {
                 bool foundStart = true;
-                for (int j = 0; j < startingTag.Length; j++)
+                for (int j = 0; j < _startingTag.Length; j++)
                 {
-                    if (str[i + j] != startingTag[j])
+                    if (_str[i + j] != _startingTag[j])
                     {
                         foundStart = false;
                         break;
@@ -195,13 +197,13 @@ namespace HorribleSubsXML_Parser
 
                 if (foundStart)
                 {
-                    for (int l = i + startingTag.Length; l < str.Length; l++)
+                    for (int l = i + _startingTag.Length; l < str.Length; l++)
                     {
                         bool foundEnd = true;
 
-                        for (int j = 0; j < endingTag.Length; j++)
+                        for (int j = 0; j < _endingTag.Length; j++)
                         {
-                            if (str[l + j] != endingTag[j])
+                            if (_str[l + j] != _endingTag[j])
                             {
                                 foundEnd = false;
                                 break;
@@ -209,7 +211,7 @@ namespace HorribleSubsXML_Parser
                         }
 
                         if (!foundEnd)
-                            builder.Append(str[l]);
+                            builder.Append(_str[l]);
                         else
                         {
                             return builder.ToString();
