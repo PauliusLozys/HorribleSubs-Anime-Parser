@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Net;
 using System.Text;
 namespace HorribleSubsXML_Parser
@@ -9,8 +10,7 @@ namespace HorribleSubsXML_Parser
     {
         static void Main()
         {
-            Console.SetWindowSize(160, 60);
-
+            SetConsoleSizeFromFile();
             const string torrentClientPath = @"C:\Program Files\qBittorrent\qbittorrent.exe";
             const string horribleSubs1080pLink = "http://www.horriblesubs.info/rss.php?res=1080";
             string choice;
@@ -116,11 +116,30 @@ namespace HorribleSubsXML_Parser
                 {
                     // Quit console
                     watchList.WriteWatchListFile();
+                    SaveConsoleSizeToFile();
                     break;
                 }
             }
         }
 
+        public static void SetConsoleSizeFromFile()
+        {
+            if (!File.Exists("consoleSettings.txt"))
+                return;
+
+            using var fs = new StreamReader("consoleSettings.txt");
+            var line = fs.ReadLine();
+            var sizes = line.Split();
+            if (int.TryParse(sizes[0], out int Width) && int.TryParse(sizes[1], out int Height))
+            {
+                Console.SetWindowSize(Width, Height);
+            }
+        }
+        public static void SaveConsoleSizeToFile()
+        {
+            using var fs = new StreamWriter("consoleSettings.txt", false);
+            fs.WriteLine($"{Console.WindowWidth} {Console.WindowHeight}");
+        }
         public static void DisplayError(string infoText)
         {
             Console.ForegroundColor = ConsoleColor.Red;
