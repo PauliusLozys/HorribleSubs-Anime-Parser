@@ -10,19 +10,18 @@ namespace HorribleSubsXML_Parser
     {
         static void Main()
         {
-            SetConsoleSizeFromFile();
+            SetSettingsFromFile(out int linkIndex);
             const string torrentClientPath = @"C:\Program Files\qBittorrent\qbittorrent.exe";
-
-            const string horribleSubs1080pLink = "http://www.horriblesubs.info/rss.php?res=1080";
-            const string horribleSubs720pLink =  "http://www.horriblesubs.info/rss.php?res=720";
-            const string horribleSubs480pLink =  "http://www.horriblesubs.info/rss.php?res=sd";
+            string[] horribleSubsLinks = new string[] {"http://www.horriblesubs.info/rss.php?res=1080",
+                                                       "http://www.horriblesubs.info/rss.php?res=720",
+                                                       "http://www.horriblesubs.info/rss.php?res=sd" };
             string choice;
 
             WebClient client = new WebClient();
             WatchListManager watchList = new WatchListManager();
             List<Anime> animeList = new List<Anime>();
             
-            var downloadedXml = client.DownloadString(horribleSubs1080pLink);
+            var downloadedXml = client.DownloadString(horribleSubsLinks[linkIndex]);
             ParseItemsXml(ref downloadedXml, animeList, watchList);
             while (true)
             {
@@ -30,7 +29,7 @@ namespace HorribleSubsXML_Parser
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.ResetColor();
                 DisplayAnimeList(animeList);
-                Console.WriteLine("Choices: \n[Any other key - quit] [0-... - anime to be downloaded] [w - add to watch list (eg. 0 11 43 ...)] [dw - display watchlist]");
+                Console.WriteLine("[Any other key - quit] [0-... - anime to be downloaded] [w - add to watch list (eg. 0 11 43 ...)] [dw - display watchlist] [sq - switch quality]");
                 Console.Write("Pick a choice: ");
                 choice = Console.ReadLine();
 
@@ -48,10 +47,28 @@ namespace HorribleSubsXML_Parser
                 {
                     Console.Write("Add animes to be added: ");
                     choice = Console.ReadLine();
-                    if (choice == string.Empty)
+                    if (string.IsNullOrEmpty(choice))
                         continue;
                     var values = choice.Split(null);
                     watchList.AddToWatchList(values, animeList);
+                }
+                else if (choice == "sq")
+                {
+                    Console.Write("0| 1080p\n1| 720p\n2| 480p\nPick quality: ");
+                    choice = Console.ReadLine();
+                    if (string.IsNullOrEmpty(choice))
+                        continue;
+                    if (int.TryParse(choice, out int index) && index < 3 && index >= 0)
+                    {
+                        if (linkIndex == index)
+                            continue;
+                        linkIndex = index;
+                        animeList.Clear();
+                        var newDownloadedXml = client.DownloadString(horribleSubsLinks[index]);
+                        ParseItemsXml(ref newDownloadedXml, animeList, watchList);
+                    }
+                    else
+                        DisplayError("Entered invalid choice");
                 }
                 else if (choice == "dw") // Display watch list
                 {
@@ -59,7 +76,7 @@ namespace HorribleSubsXML_Parser
                     {
                         watchList.DisplayWatchList();
 
-                        Console.WriteLine("Choices: [ q - go back to main window ] [ 0-... - download anime ] [ r - multiple removal (eg. 1 5 10 30 ...) ]");
+                        Console.WriteLine("[q - go back to main window] [0-... - download anime] [r - multiple removal (eg. 1 5 10 30 ...)]");
                         Console.Write("Pick a choice: ");
                         choice = Console.ReadLine();
                         if(int.TryParse(choice, out int index))
@@ -100,29 +117,34 @@ namespace HorribleSubsXML_Parser
                 {
                     // Quit console
                     watchList.WriteWatchListFile();
-                    SaveConsoleSizeToFile();
+                    SaveSettingsToFile(ref linkIndex);
                     break;
                 }
             }
         }
 
-        public static void SetConsoleSizeFromFile()
+        public static void SetSettingsFromFile(out int linkIndex)
         {
-            if (!File.Exists("consoleSettings.txt"))
+            if (!File.Exists("Settings.txt"))
+            {
+                linkIndex = 0; // Set default quality as highest
                 return;
-
-            using var fs = new StreamReader("consoleSettings.txt");
+            }
+            using var fs = new StreamReader("Settings.txt");
             var line = fs.ReadLine();
             var sizes = line.Split();
-            if (int.TryParse(sizes[0], out int Width) && int.TryParse(sizes[1], out int Height))
+            if (int.TryParse(sizes[0], out int Width) && int.TryParse(sizes[1], out int Height) && int.TryParse(sizes[2], out int LinkIndex))
             {
                 Console.SetWindowSize(Width, Height);
+                linkIndex = LinkIndex;
+                return;
             }
+            linkIndex = 0; // Set default quality as highest
         }
-        public static void SaveConsoleSizeToFile()
+        public static void SaveSettingsToFile(ref int linkIndex)
         {
-            using var fs = new StreamWriter("consoleSettings.txt", false);
-            fs.WriteLine($"{Console.WindowWidth} {Console.WindowHeight}");
+            using var fs = new StreamWriter("Settings.txt", false);
+            fs.WriteLine($"{Console.WindowWidth} {Console.WindowHeight} {linkIndex}");
         }
         public static void DisplayError(string infoText)
         {
