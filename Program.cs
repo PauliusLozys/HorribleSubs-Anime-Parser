@@ -12,7 +12,10 @@ namespace HorribleSubsXML_Parser
         {
             SetConsoleSizeFromFile();
             const string torrentClientPath = @"C:\Program Files\qBittorrent\qbittorrent.exe";
+
             const string horribleSubs1080pLink = "http://www.horriblesubs.info/rss.php?res=1080";
+            const string horribleSubs720pLink =  "http://www.horriblesubs.info/rss.php?res=720";
+            const string horribleSubs480pLink =  "http://www.horriblesubs.info/rss.php?res=sd";
             string choice;
 
             WebClient client = new WebClient();
@@ -21,14 +24,13 @@ namespace HorribleSubsXML_Parser
             
             var downloadedXml = client.DownloadString(horribleSubs1080pLink);
             ParseItemsXml(ref downloadedXml, animeList, watchList);
-
             while (true)
             {
                 Console.Clear();
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.ResetColor();
                 DisplayAnimeList(animeList);
-                Console.WriteLine("Choices: [ Any other key - quit ] [ 0-... - anime to be downloaded ] [ w - add to watch list (eg. 0 11 43 ...)] [ dw - display watchlist ]");
+                Console.WriteLine("Choices: \n[Any other key - quit] [0-... - anime to be downloaded] [w - add to watch list (eg. 0 11 43 ...)] [dw - display watchlist]");
                 Console.Write("Pick a choice: ");
                 choice = Console.ReadLine();
 
@@ -57,11 +59,10 @@ namespace HorribleSubsXML_Parser
                     {
                         watchList.DisplayWatchList();
 
-                        Console.WriteLine("Choices: [ q - go back to main window ] [ 0-... - download anime ] [ r - remove from watchlist (eg. 0-...)] [ mr - multiple removal (eg. 1 5 10 30 ...) ]");
+                        Console.WriteLine("Choices: [ q - go back to main window ] [ 0-... - download anime ] [ r - multiple removal (eg. 1 5 10 30 ...) ]");
                         Console.Write("Pick a choice: ");
                         choice = Console.ReadLine();
-                        int index;
-                        if(int.TryParse(choice, out index))
+                        if(int.TryParse(choice, out int index))
                         {
                             if (index < watchList.WatchListCount)
                             {
@@ -77,23 +78,6 @@ namespace HorribleSubsXML_Parser
                                 DisplayError($"ERROR: THE NUMBER PROVIDED IS TOO LARGE");
                         }
                         else if (choice == "r")
-                        {
-                            if (watchList.WatchListCount == 0)
-                            {
-                                DisplayError($"ERROR: THERE ARE NO ENTRIES IN THE WATCHLIST");
-                                continue;
-                            }
-                            Console.Write("Add anime to be removed: ");
-                            choice = Console.ReadLine();
-
-                            if (string.IsNullOrEmpty(choice))
-                                continue;
-                            else if (int.TryParse(choice, out index))
-                                watchList.RemoveEntryFromWatchList(index, animeList);
-                            else
-                                DisplayError($"ERROR: NO VALID PARAMATER GIVEN");
-                        }
-                        else if (choice == "mr")
                         {
                             if (watchList.WatchListCount == 0)
                             {

@@ -136,22 +136,6 @@ namespace HorribleSubsXML_Parser
                 fs.WriteLine($"{item.Title};{item.LatestEpisode};{item.IsDownloaded};{item.ReleaseDay}");
             }
         }
-        public void RemoveEntryFromWatchList(int index, List<Anime> animeList)
-        {
-            if(index >= WatchList.Count)
-            {
-                Program.DisplayError($"ERROR: INVALID INDEX {index}, SO IT WAS IGNORED");
-                return;
-            }
-            
-            WatchList.RemoveAt(index);
-
-            // Rechecks the whole list for containing animes
-            foreach (var anime in animeList)
-            {
-                anime.IsInWatchList = ContainsInWatchList(anime);
-            }
-        }
         public void RemoveMultipleEntriesFromWatchList(string[] indexes, List<Anime> animeList)
         {
             List<WatchListItem> tmp = new List<WatchListItem>(indexes.Length);
