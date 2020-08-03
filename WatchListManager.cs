@@ -23,10 +23,10 @@ namespace HorribleSubsXML_Parser
         {
             foreach (var item in animes)
             {
-                if (!int.TryParse(item, out int index) || index > WatchList.Count || index < 0)
+                if (!int.TryParse(item, out int index) || index >= animeList.Count || index < 0)
                 {
-                    Program.DisplayError($"ERROR: INVALID INDEX: {item} PROVIDED");
-                    return;    
+                    Program.DisplayError($"ERROR: INVALID INDEX: {item} PROVIDED, SO IT WON'T BE ADDED");
+                    continue;    
                 }
                 
                 string title = animeList[index].Title;
