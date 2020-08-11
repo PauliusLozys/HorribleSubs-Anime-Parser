@@ -68,7 +68,7 @@ namespace HorribleSubsXML_Parser
                         ParseItemsXml(ref newDownloadedXml, animeList, watchList);
                     }
                     else
-                        DisplayError("Entered invalid choice");
+                        DisplayError($"ERROR: INVALID INDEX {choice} PROVIDED");
                 }
                 else if (choice == "dw") // Display watch list
                 {
