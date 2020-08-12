@@ -69,10 +69,12 @@ namespace HorribleSubsXML_Parser
 
             for (int i = 0; i < WatchList.Count; i++)
             {
+                var cachedDate = WatchList[i].ReleaseDay.AddDays(7);
+
                 if (string.IsNullOrEmpty(WatchList[i].LatestEpisodeLink))
                 {
                     Console.ForegroundColor = ConsoleColor.White;
-                    Console.WriteLine("{0,2}| {1,-80}| Last episode: {2,-3}| No episodes found", 
+                    Console.WriteLine("{0,2}| {1,-80}| Last episode: {2,-5}| No episodes found", 
                         i, 
                         WatchList[i].Title, 
                         WatchList[i].LatestEpisode
@@ -80,14 +82,14 @@ namespace HorribleSubsXML_Parser
                     Console.ForegroundColor = ConsoleColor.Cyan;
 
                 }
-                else if(!WatchList[i].IsDownloaded)
+                else if(!WatchList[i].IsDownloaded) // Is NOT downloaded
                 {
-                    Console.ForegroundColor = ConsoleColor.DarkYellow;
+                    Console.ForegroundColor = ConsoleColor.Magenta;
                     Console.WriteLine("{0,2}| {1,-80}| Latest Episode: {2,-3}| Next episode release date: {3} {4}:{5}",
                         i,
                         WatchList[i].Title,
                         WatchList[i].LatestEpisode,
-                        WatchList[i].ReleaseDay.AddDays(7).ToShortDateString(),
+                        cachedDate.Date == DateTime.Now.Date ? "Today" : cachedDate.ToShortDateString(),
                         WatchList[i].ReleaseDay.Hour,
                         WatchList[i].ReleaseDay.Minute < 30 ? "00" : "30"
                         );
@@ -98,7 +100,7 @@ namespace HorribleSubsXML_Parser
                         i,
                         WatchList[i].Title,
                         WatchList[i].LatestEpisode,
-                        WatchList[i].ReleaseDay.AddDays(7).ToShortDateString(),
+                        cachedDate.Date == DateTime.Now.Date ? "Today" : cachedDate.ToShortDateString(),
                         WatchList[i].ReleaseDay.Hour,
                         WatchList[i].ReleaseDay.Minute < 30 ? "00" : "30"
                         );
