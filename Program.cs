@@ -133,7 +133,7 @@ namespace HorribleSubsXML_Parser
             using var fs = new StreamReader("Settings.txt");
             var line = fs.ReadLine();
             var sizes = line.Split();
-            if (int.TryParse(sizes[0], out int Width) && int.TryParse(sizes[1], out int Height) && int.TryParse(sizes[2], out int LinkIndex))
+            if (sizes.Length == 3 && int.TryParse(sizes[0], out int Width) && int.TryParse(sizes[1], out int Height) && int.TryParse(sizes[2], out int LinkIndex))
             {
                 Console.SetWindowSize(Width, Height);
                 linkIndex = LinkIndex;
