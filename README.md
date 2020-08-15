@@ -1,5 +1,5 @@
 # HorribleSubs-Anime-Parser
-Download latest 50 1080p anime from HorribleSubs from a command line with qBitTorrent
+Download latest 50 (1080p, 720p or 480/360p) anime episodes from HorribleSubs from a command line with qBitTorrent
 ## Download straight from the command line
 ![alt text](https://github.com/RainbowDog98/HorribleSubs-Anime-Parser/blob/master/images/main%20display.png)
 From the given list of anime, you  can type a number corresponding to an anime and a torrent client will be opened to start downloading 
@@ -7,9 +7,9 @@ From the given list of anime, you  can type a number corresponding to an anime a
 
 ## Make a Watchlist
 ![alt text](https://github.com/RainbowDog98/HorribleSubs-Anime-Parser/blob/master/images/watchlist%20display.png)
-You can make a watchlist by adding ainme to it, It will track: 
+You can make a watchlist by adding anime to it, It will track: 
 * What anime you are watching right now
-* If you have dowloaded it (it will be displayed in dark yellow color)
-* Approximatly when the new anime will be released 
+* If you have dowloaded it (it will be displayed in magenta color if it's not and cyan color if it is)
+* Approximately when the new anime will be released 
 
 And thats about it :^)
