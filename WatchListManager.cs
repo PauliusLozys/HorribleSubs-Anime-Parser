@@ -56,6 +56,12 @@ namespace HorribleSubsXML_Parser
         }
         public void DisplayWatchList()
         {
+            static string todayPrint()
+            {
+                Console.ForegroundColor = ConsoleColor.Green;
+                return "Today";
+            }
+
             Console.Clear();
             Console.ForegroundColor = ConsoleColor.Cyan;
             if (WatchList.Count == 0)
@@ -79,8 +85,6 @@ namespace HorribleSubsXML_Parser
                         WatchList[i].Title, 
                         WatchList[i].LatestEpisode
                         );
-                    Console.ForegroundColor = ConsoleColor.Cyan;
-
                 }
                 else if(!WatchList[i].IsDownloaded) // Is NOT downloaded
                 {
@@ -93,17 +97,17 @@ namespace HorribleSubsXML_Parser
                         WatchList[i].ReleaseDay.Hour,
                         WatchList[i].ReleaseDay.Minute < 30 ? "00" : "30"
                         );
-                    Console.ForegroundColor = ConsoleColor.Cyan;
                 }
                 else
                     Console.WriteLine("{0,2}| {1,-80}| Latest Episode: {2,-3}| Next episode release date: {3} {4}:{5}",
                         i,
                         WatchList[i].Title,
                         WatchList[i].LatestEpisode,
-                        cachedDate.Date == DateTime.Now.Date ? "Today" : cachedDate.ToShortDateString(),
+                        cachedDate.Date == DateTime.Now.Date ? todayPrint() : cachedDate.ToShortDateString(),
                         WatchList[i].ReleaseDay.Hour,
                         WatchList[i].ReleaseDay.Minute < 30 ? "00" : "30"
                         );
+                Console.ForegroundColor = ConsoleColor.Cyan;
                 Console.WriteLine(Seperator);
             }
             Console.ResetColor();
