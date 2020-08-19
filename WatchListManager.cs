@@ -35,13 +35,23 @@ namespace HorribleSubsXML_Parser
                 {
                     if (title[i] == '-')
                     {
-                        WatchList.Add(new WatchListItem()
+                        var animeToBeAdded = new WatchListItem()
                         {
                             Title = title.Remove(i),
                             LatestEpisode = 0,
                             IsDownloaded = false,
                             ReleaseDay = animeList[index].PubDate
-                        }); ;
+                        };
+
+                        // Check if it already exists in the watchlist
+                        if(WatchList.Contains(animeToBeAdded))
+                        {
+                            Program.DisplayError($"Anime \"{animeToBeAdded.Title}\" already exists in the watchlist");
+                            break;
+                        }    
+
+                        // Add a new watchlist value
+                        WatchList.Add(animeToBeAdded);
                         break;
                     }
                 }
