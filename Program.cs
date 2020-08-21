@@ -31,7 +31,7 @@ namespace HorribleSubsXML_Parser
                 DisplayAnimeList(animeList);
                 Console.WriteLine("[Any other key - quit] [0-... - anime to be downloaded] [w - add to watch list (eg. 0 11 43 ...)] [dw - display watchlist] [sq - switch quality]");
                 Console.Write("Pick a choice: ");
-                choice = Console.ReadLine();
+                choice = Console.ReadLine().ToLower();
 
                 if (int.TryParse(choice, out int result)) // Download anime
                 {
@@ -78,7 +78,7 @@ namespace HorribleSubsXML_Parser
 
                         Console.WriteLine("[q - go back to main window] [0-... - download anime] [r - multiple removal (eg. 1 5 10 30 ...)]");
                         Console.Write("Pick a choice: ");
-                        choice = Console.ReadLine();
+                        choice = Console.ReadLine().ToLower();
                         if(int.TryParse(choice, out int index))
                         {
                             if (index < watchList.WatchListCount)
