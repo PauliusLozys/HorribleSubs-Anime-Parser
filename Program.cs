@@ -4,6 +4,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+
 namespace HorribleSubsXML_Parser
 {
     class Program
@@ -16,9 +19,11 @@ namespace HorribleSubsXML_Parser
                                                        "http://www.horriblesubs.info/rss.php?res=720",
                                                        "http://www.horriblesubs.info/rss.php?res=sd" };
             string choice;
+            bool isAutomaticDownloadEnabled = false;
+            bool hasThreadStopped = true;
 
             WebClient client = new WebClient();
-            WatchListManager watchList = new WatchListManager();
+            WatchListManager watchList = new WatchListManager(torrentClientPath);
             List<Anime> animeList = new List<Anime>();
             
             var downloadedXml = client.DownloadString(horribleSubsLinks[linkIndex]);
@@ -29,7 +34,7 @@ namespace HorribleSubsXML_Parser
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.ResetColor();
                 DisplayAnimeList(animeList);
-                Console.WriteLine("[Any other key - quit] [0-... - anime to be downloaded] [w - add to watch list (eg. 0 11 43 ...)] [dw - display watchlist] [sq - switch quality]");
+                Console.WriteLine("[Any other key - quit] [0-... - anime to be downloaded] [w - add to watch list (eg. 0 11 43 ...)] [dw - display watchlist] [sq - switch quality] [ad - automaticly download new anime]");
                 Console.Write("Pick a choice: ");
                 choice = Console.ReadLine().ToLower();
 
@@ -69,6 +74,26 @@ namespace HorribleSubsXML_Parser
                     }
                     else
                         DisplayError($"ERROR: INVALID INDEX {choice} PROVIDED");
+                }
+                else if (choice == "ad")
+                {
+                    isAutomaticDownloadEnabled = !isAutomaticDownloadEnabled;
+
+                    if (isAutomaticDownloadEnabled && hasThreadStopped)
+                    {
+                        hasThreadStopped = false;
+                        Task.Factory.StartNew(() => {
+                            while (isAutomaticDownloadEnabled)
+                            {
+                                var downloadedXml = client.DownloadString(horribleSubsLinks[linkIndex]);
+                                ParseItemsXmlInBackground(ref downloadedXml, watchList);
+                                //Console.WriteLine("Hello everyone, another Thread calling with condition: " + isAutomaticDownloadEnabled);
+                                Thread.Sleep(60_000); // Runs every minute
+                            }
+                            Console.WriteLine("\nINFO: Automated downloading has been stopped");
+                            hasThreadStopped = true;
+                        });
+                    }
                 }
                 else if (choice == "dw") // Display watch list
                 {
@@ -201,6 +226,22 @@ namespace HorribleSubsXML_Parser
             // Sort the list with possibly updated DateTime values
             watchList.SortWatchList();
         }  
+        private static void ParseItemsXmlInBackground(ref string downloadedXml, WatchListManager watchList)
+        {
+            var tokens = downloadedXml.Split(new string[] { "<item>", "</channel>" }, StringSplitOptions.None);
+            for (int i = 0; i < tokens.Length; i++)
+            {
+                if (!tokens[i].EndsWith("</item>")) // Unneeded token, skipping it
+                    continue;
+
+                var tmpTitle = ExtractString(ref tokens[i], "<title>", "</title>");
+                var tmpDate = DateTime.Parse(ExtractString(ref tokens[i], "<pubDate>", "</pubDate>"));
+                var tmpLink = ExtractString(ref tokens[i], "<link>", "</link>");
+                watchList.ContainsInWatchList(new Anime { Title = tmpTitle, Link = tmpLink, PubDate = tmpDate }, true);
+            }
+            // Sort the list with possibly updated DateTime values
+            watchList.SortWatchList();
+        }
         private static string ExtractString(ref string str, string startingTag, string endingTag)
         {
             StringBuilder builder = new StringBuilder();

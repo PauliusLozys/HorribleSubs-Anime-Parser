@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 
 namespace HorribleSubsXML_Parser
@@ -7,6 +8,7 @@ namespace HorribleSubsXML_Parser
     class WatchListManager
     {
         private List<WatchListItem> WatchList { get; set; }
+        private string TorrentClientPath;
         private readonly string FileName = "animeListing.txt";
         private readonly string Seperator = new string('-', Console.WindowWidth - 1);
 
@@ -14,6 +16,13 @@ namespace HorribleSubsXML_Parser
 
         public WatchListManager()
         {
+            WatchList = new List<WatchListItem>();
+            // Read a watchlist file
+            ReadWatchListFile();
+        }
+        public WatchListManager(string torrentClientPath)
+        {
+            TorrentClientPath = torrentClientPath;
             WatchList = new List<WatchListItem>();
             // Read a watchlist file
             ReadWatchListFile();
@@ -122,7 +131,7 @@ namespace HorribleSubsXML_Parser
             }
             Console.ResetColor();
         }
-        public bool ContainsInWatchList(Anime anime)
+        public bool ContainsInWatchList(Anime anime, bool startAutomaticDownload = false)
         {
             foreach (var item in WatchList)
             {
@@ -131,10 +140,12 @@ namespace HorribleSubsXML_Parser
                     int episodeNumber = GetAnimesEpisodeNumber(anime.Title);
                     if(episodeNumber > item.LatestEpisode)
                     {
+                        if (startAutomaticDownload)
+                            Process.Start(TorrentClientPath, anime.Link);
                         // Newer version of the episode was found
                         item.LatestEpisodeLink = anime.Link;
                         item.LatestEpisode = episodeNumber;
-                        item.IsDownloaded = false;
+                        item.IsDownloaded = startAutomaticDownload;
                         item.ReleaseDay = anime.PubDate;
                     }
                     else if (episodeNumber == item.LatestEpisode)
