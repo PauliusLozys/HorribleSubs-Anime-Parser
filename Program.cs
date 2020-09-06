@@ -8,13 +8,13 @@ namespace HorribleSubsXML_Parser
 {
     class Program
     {
-        public enum CtrlTypes
-        { // Can have more in the future :^)
-            CTRL_CLOSE_EVENT = 2
-        }
-        public delegate void HandlerRoutine(CtrlTypes CtrlType);
-        [System.Runtime.InteropServices.DllImport("Kernel32")]
-        public static extern bool SetConsoleCtrlHandler(HandlerRoutine Handler, bool Add);
+        //public enum CtrlTypes
+        //{ // Can have more in the future :^)
+        //    CTRL_CLOSE_EVENT = 2
+        //}
+        //public delegate void HandlerRoutine(CtrlTypes CtrlType);
+        //[System.Runtime.InteropServices.DllImport("Kernel32")]
+        //public static extern bool SetConsoleCtrlHandler(HandlerRoutine Handler, bool Add);
 
         static void Main()
         {
@@ -29,10 +29,17 @@ namespace HorribleSubsXML_Parser
             WatchListManager watchList = new WatchListManager();
             List<Anime> animeList = new List<Anime>();
 
+            AppDomain.CurrentDomain.ProcessExit += ExitEvent;
             // Set closing event delegate
-            SetConsoleCtrlHandler(new HandlerRoutine( (CtrlTypes ctrlType) => { // Write to files when exiting via close button
-                if (ctrlType == CtrlTypes.CTRL_CLOSE_EVENT) { watchList.WriteWatchListFile(); SaveSettingsToFile(ref linkIndex); }
-            }), true);
+            //SetConsoleCtrlHandler(new HandlerRoutine( (CtrlTypes ctrlType) => { // Write to files when exiting via close button
+            //    if (ctrlType == CtrlTypes.CTRL_CLOSE_EVENT) { watchList.WriteWatchListFile(); SaveSettingsToFile(ref linkIndex); }
+            //}), true);
+
+            void ExitEvent(object sender, EventArgs e)
+            {
+                watchList.WriteWatchListFile(); 
+                SaveSettingsToFile(ref linkIndex);
+            }
 
 
             var downloadedXml = client.DownloadString(horribleSubsLinks[linkIndex]);
@@ -130,12 +137,14 @@ namespace HorribleSubsXML_Parser
                 else
                 {
                     // Quit console and write the files
-                    watchList.WriteWatchListFile(); 
-                    SaveSettingsToFile(ref linkIndex);
+                    //watchList.WriteWatchListFile(); 
+                   // SaveSettingsToFile(ref linkIndex);
                     break;
                 }
             }
         }
+
+        
 
         public static void SetSettingsFromFile(out int linkIndex)
         {
