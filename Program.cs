@@ -8,6 +8,14 @@ namespace HorribleSubsXML_Parser
 {
     class Program
     {
+        public enum CtrlTypes
+        { // Can have more in the future :^)
+            CTRL_CLOSE_EVENT = 2
+        }
+        public delegate void HandlerRoutine(CtrlTypes CtrlType);
+        [System.Runtime.InteropServices.DllImport("Kernel32")]
+        public static extern bool SetConsoleCtrlHandler(HandlerRoutine Handler, bool Add);
+
         static void Main()
         {
             SetSettingsFromFile(out int linkIndex);
@@ -20,7 +28,13 @@ namespace HorribleSubsXML_Parser
             WebClient client = new WebClient();
             WatchListManager watchList = new WatchListManager();
             List<Anime> animeList = new List<Anime>();
-            
+
+            // Set closing event delegate
+            SetConsoleCtrlHandler(new HandlerRoutine( (CtrlTypes ctrlType) => { // Write to files when exiting via close button
+                if (ctrlType == CtrlTypes.CTRL_CLOSE_EVENT) { watchList.WriteWatchListFile(); SaveSettingsToFile(ref linkIndex); }
+            }), true);
+
+
             var downloadedXml = client.DownloadString(horribleSubsLinks[linkIndex]);
             ParseItemsXml(ref downloadedXml, animeList, watchList);
             while (true)
@@ -115,8 +129,8 @@ namespace HorribleSubsXML_Parser
                 }
                 else
                 {
-                    // Quit console
-                    watchList.WriteWatchListFile();
+                    // Quit console and write the files
+                    watchList.WriteWatchListFile(); 
                     SaveSettingsToFile(ref linkIndex);
                     break;
                 }
