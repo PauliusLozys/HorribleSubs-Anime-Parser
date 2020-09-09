@@ -4,6 +4,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Text;
+using System.Threading.Tasks;
+
 namespace HorribleSubsXML_Parser
 {
     class Program
@@ -37,7 +39,7 @@ namespace HorribleSubsXML_Parser
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.ResetColor();
                 DisplayAnimeList(animeList);
-                Console.WriteLine("[Any other key - quit] [0-... - anime to be downloaded] [w - add to watch list (eg. 0 11 43 ...)] [dw - display watchlist] [sq - switch quality]");
+                Console.WriteLine("[Any other key - quit] [0-... - anime to be downloaded] [w - add to watch list (eg. 0 11 43 ...)] [dw - display watchlist] [sq - switch quality] [r - refresh]");
                 Console.Write("Pick a choice: ");
                 choice = Console.ReadLine().ToLower();
 
@@ -50,6 +52,12 @@ namespace HorribleSubsXML_Parser
                     }
                     else
                         DisplayError($"ERROR: THE NUMBER PROVIDED IS TOO LARGE");
+                }
+                else if (choice == "r")
+                {
+                    animeList.Clear();
+                    var newdownloadedXml = client.DownloadString(horribleSubsLinks[linkIndex]);
+                    ParseItemsXml(ref newdownloadedXml, animeList, watchList);
                 }
                 else if (choice == "w") // Add to watch list
                 {
@@ -87,7 +95,7 @@ namespace HorribleSubsXML_Parser
                         Console.WriteLine("[q - go back to main window] [0-... - download anime] [r - multiple removal (eg. 1 5 10 30 ...)]");
                         Console.Write("Pick a choice: ");
                         choice = Console.ReadLine().ToLower();
-                        if(int.TryParse(choice, out int index))
+                        if (int.TryParse(choice, out int index))
                         {
                             if (index < watchList.WatchListCount)
                             {
