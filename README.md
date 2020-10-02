@@ -1,4 +1,7 @@
 # HorribleSubs-Anime-Parser
+
+## No longer works due to HorribleSubs shutting down :(
+
 Download latest 50 (1080p, 720p or 480/360p) anime episodes from HorribleSubs from a command line with qBitTorrent
 ## Download straight from the command line
 ![alt text](https://github.com/RainbowDog98/HorribleSubs-Anime-Parser/blob/master/images/main%20display.png)
